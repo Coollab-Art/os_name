@@ -54,22 +54,29 @@ static auto os_name_impl() -> std::string
 #endif // __linux__
 
 #ifdef __APPLE__
+#include <cstdlib>
+#include <iostream>
 
-#include <fstream>
 
 static auto os_name_impl() -> std::string
 {
-    std::fstream sw_vers("sw_vers -productVersion", std::ios::in);
-    if (!sw_vers.is_open())
-        return "MacOS (Unknown version)";
-
-    std::string result = "";
-    std::string line;
-    while (std::getline(sw_vers, line))
-        result += line;
-    sw_vers.close();
-    result.erase(result.find_last_not_of(" \n\r\t") + 1);
-    return "MacOS " + result;
+    std::string os_version = "";
+    std::string command    = "sw_vers -productVersion";
+    FILE*       pipe       = popen(command.c_str(), "r");
+    if (!pipe)
+    {
+        std::cerr << "Error executing command" << std::endl;
+        return 1;
+    }
+    char buffer[128];
+    while (fgets(buffer, 128, pipe))
+    {
+        os_version += buffer;
+    }
+    pclose(pipe);
+    os_version.erase(os_version.find_last_not_of("\n") + 1);
+    std::cout << "Current MacOS version: " << os_version << std::endl;
+    return "yo";
 }
 
 #endif // __APPLE__
