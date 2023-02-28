@@ -3,6 +3,8 @@
 
 namespace Cool {
 
-auto os_name() -> std::string;
+/// Returns the OS name and version.
+/// We do caching so calling this function is extremely cheap after the first time.
+auto os_name() -> std::string const&;
 
 } // namespace Cool

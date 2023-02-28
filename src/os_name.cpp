@@ -2,13 +2,12 @@
 #include <string>
 
 #ifdef _WIN32
+
 #include <Windows.h>
 #include <vector>
 #pragma comment(lib, "version.lib")
 
-namespace Cool {
-
-auto os_name() -> std::string
+static auto os_name_impl() -> std::string
 {
     static std::string const default_string = "Windows (Unknown version)";
 
@@ -32,35 +31,50 @@ auto os_name() -> std::string
     return "Windows " + std::to_string(HIWORD(file_info->dwProductVersionMS)) + "." + std::to_string(LOWORD(file_info->dwProductVersionMS)) + "." + std::to_string(HIWORD(file_info->dwProductVersionLS)) + "." + std::to_string(LOWORD(file_info->dwProductVersionLS));
 }
 
-} // namespace Cool
 #endif // _WIN32
 
 #ifdef __linux__
 
-namespace Cool {
+#include <fstream>
 
-auto os_name() -> std::string
+static auto os_name_impl() -> std::string
 {
-    struct utsname uts;
-    uname(&uts);
-    return uts.sysname;
-}
+    std::ifstream os_release("/etc/os-release");
+    std::string   line;
 
-} // namespace Cool
+    while (std::getline(os_release, line))
+    {
+        if (line.find("VERSION_ID=") != std::string::npos)
+            return line.substr(line.find('=') + 1);
+    }
+
+    return "Linux (Unknown version)";
+}
 
 #endif // __linux__
 
 #ifdef __APPLE__
 
-namespace Cool {
+#include <sys/sysctl.h>
 
-auto os_name() -> std::string
+static auto os_name_impl() -> std::string
 {
-    struct utsname uts;
-    uname(&uts);
-    return uts.sysname;
+    int    name[2] = {CTL_KERN, KERN_OSRELEASE};
+    char   version[256];
+    size_t version_size = sizeof(version);
+
+    if (sysctl(name, 2, version, &version_size, nullptr, 0) == -1)
+        return "MacOS (Unknown version)";
+
+    return "MacOS " + std::string{version};
 }
 
-} // namespace Cool
-
 #endif // __APPLE__
+
+namespace Cool {
+auto os_name() -> std::string const&
+{
+    static std::string const name = os_name_impl();
+    return name;
+}
+} // namespace Cool
