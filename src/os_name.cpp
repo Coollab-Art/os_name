@@ -40,15 +40,23 @@ static auto os_name_impl() -> std::string
 static auto os_name_impl() -> std::string
 {
     std::ifstream os_release("/etc/os-release");
-    std::string   line;
 
+    std::string os{};
+    std::string distributor{};
+    std::string version{};
+
+    std::string line;
     while (std::getline(os_release, line))
     {
+        if (line.find("PRETTY_NAME=") != std::string::npos)
+            os = line.substr(line.find('=') + 1);
+        if (line.find("ID=") != std::string::npos)
+            distributor = line.substr(line.find('=') + 1);
         if (line.find("VERSION_ID=") != std::string::npos)
-            return line.substr(line.find('=') + 1);
+            version = line.substr(line.find('=') + 1);
     }
 
-    return "Linux (Unknown version)";
+    return os + ' ' + distributor + ' ' + version;
 }
 
 #endif // __linux__
