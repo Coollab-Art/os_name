@@ -1,5 +1,17 @@
 # os_name
 
+## Usage
+
+```cpp
+std::string const name = Cool::os_name();
+// Might return:
+// "Windows 10.0.19041.2546"
+// "Ubuntu 22.04.2 LTS"
+// "MacOS 11.7.4"
+```
+
+Good to know: We cache the result so calling this function is extremely cheap after the first time.
+
 ## Including
 
 To add this library to your project, simply add these two lines to your *CMakeLists.txt*:
