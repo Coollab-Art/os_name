@@ -55,18 +55,21 @@ static auto os_name_impl() -> std::string
 
 #ifdef __APPLE__
 
-#include <sys/sysctl.h>
+#include <fstream>
 
 static auto os_name_impl() -> std::string
 {
-    int    name[2] = {CTL_KERN, KERN_OSRELEASE};
-    char   version[256];
-    size_t version_size = sizeof(version);
-
-    if (sysctl(name, 2, version, &version_size, nullptr, 0) == -1)
+    std::fstream sw_vers("sw_vers -productVersion", std::ios::in);
+    if (!sw_vers.is_open())
         return "MacOS (Unknown version)";
 
-    return "MacOS " + std::string{version};
+    std::string result = "";
+    std::string line;
+    while (std::getline(sw_vers, line))
+        result += line;
+    sw_vers.close();
+    result.erase(result.find_last_not_of(" \n\r\t") + 1);
+    return "MacOS " + result;
 }
 
 #endif // __APPLE__
