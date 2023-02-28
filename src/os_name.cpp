@@ -66,7 +66,7 @@ static auto os_name_impl() -> std::string
     if (!pipe)
     {
         std::cerr << "Error executing command" << std::endl;
-        return 1;
+        return "pouet";
     }
     char buffer[128];
     while (fgets(buffer, 128, pipe))
