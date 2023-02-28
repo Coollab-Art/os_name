@@ -41,22 +41,14 @@ static auto os_name_impl() -> std::string
 {
     std::ifstream os_release("/etc/os-release");
 
-    std::string os{};
-    std::string distributor{};
-    std::string version{};
-
     std::string line;
     while (std::getline(os_release, line))
     {
         if (line.find("PRETTY_NAME=") != std::string::npos)
-            os = line.substr(line.find('=') + 1);
-        if (line.find("ID=") != std::string::npos)
-            distributor = line.substr(line.find('=') + 1);
-        if (line.find("VERSION_ID=") != std::string::npos)
-            version = line.substr(line.find('=') + 1);
+            return line.substr(line.find('=') + 1);
     }
 
-    return os + ' ' + distributor + ' ' + version;
+    return "Linux (Unknown distribution)";
 }
 
 #endif // __linux__
@@ -79,10 +71,17 @@ static auto os_name_impl() -> std::string
 
 #endif // __APPLE__
 
+#include <algorithm>
+static auto remove_quotes(std::string str) -> std::string
+{
+    str.erase(std::remove(str.begin(), str.end(), '"'), str.end());
+    return str;
+}
+
 namespace Cool {
 auto os_name() -> std::string const&
 {
-    static std::string const name = os_name_impl();
+    static std::string const name = remove_quotes(os_name_impl());
     return name;
 }
 } // namespace Cool
