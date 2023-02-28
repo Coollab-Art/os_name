@@ -1,7 +1,10 @@
 #include <os_name/os_name.hpp>
 
-namespace os_name {
+namespace Cool {
 
+auto os_name() -> std::string
+{
+    return "Hello";
+}
 
-    
-} // namespace os_name
+} // namespace Cool

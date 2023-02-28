@@ -1,7 +1,8 @@
 #pragma once
+#include <string>
 
-namespace os_name {
+namespace Cool {
 
+auto os_name() -> std::string;
 
-    
-} // namespace os_name
+} // namespace Cool
